@@ -11,6 +11,7 @@ class Tree < Node
     @root = @array[@mid]
     @left = @array[0..@mid - 1]
     @right = @array[@mid + 1..-1]
+    @parent = nil
   end
 
 
@@ -91,6 +92,79 @@ def insert(value)
     end
   end
 
+  def delete(value)
+    puts "#{value} not found in array" if include?(value).nil?
+    current = @root
+    found = false
+    level = 0
+    @parent = @root
+
+    until found == true
+      binding.pry
+      if value == current.root
+        found = true
+      elsif value < current.root
+        # binding.pry
+        @parent = current
+        current = current.left
+      elsif value > current.root
+        # binding.pry
+        @parent = current
+        current = current.right
+      end
+    end
+
+    #for no children
+    if current.left.nil? && current.right.nil?
+      current = nil
+      return
+    #For one child
+    elsif current.left.nil? || current.right.nil?
+      if @parent.root > value
+        # binding.pry
+        @parent.left = current.left if current.left != nil
+        @parent.left = current.right if current.right != nil
+      else
+        # binding.pry
+        @parent.right = current.left if current.left != nil
+        @parent.right = current.right if current.right != nil
+      end
+      current = nil
+      return
+    else
+    # For 2 children
+    switch_node = current.right
+    binding.pry
+    while switch_node.left != nil
+      binding.pry
+      if switch_node.left.root < switch_node.root
+        binding.pry
+        switch_parent = switch_node
+        switch_node = switch_node.left
+      end
+    end
+    if value < @parent.root
+      @parent.left = switch_node
+      switch_parent.left = nil
+      switch_node.right = current.right
+      switch_node.left = current.left
+      current = nil
+    elsif value > @parent.root
+      @parent.right = switch_node
+      switch_parent.left = nil
+      switch_node.right = current.right
+      switch_node.left = current.left
+      current = nil
+    elsif value == @parent.root
+      binding.pry
+      switch_parent.left = nil
+      switch_node.right = current.right
+      switch_node.left = current.left
+      current = nil
+    end
+  end
+  end
+
 end
 
 test = Tree.new([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324])
@@ -100,4 +174,7 @@ puts test.include?(23)
 puts test.include?(6344)
 test.insert(20)
 test.pretty_print
-test.insert(20)
+# test.insert(20)
+# test.delete(4)
+test.pretty_print 
+test.delete(8)
