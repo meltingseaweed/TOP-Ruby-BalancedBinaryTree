@@ -3,7 +3,7 @@ require_relative 'node.rb'
   
   class Tree < Node
 
-    attr_reader :array
+    attr_accessor :array, :root, :new_tree_array
 
     def initialize(array)
       @array = array.uniq.sort
@@ -12,8 +12,12 @@ require_relative 'node.rb'
       @left = @array[0..@mid - 1]
       @right = @array[@mid + 1..-1]
       @parent = nil
+      @new_tree_array = []
     end
 
+    def new_tree_array
+      @new_tree_array
+    end
 
     def build_tree(array)
 
@@ -165,19 +169,11 @@ require_relative 'node.rb'
         child_right = switch_node.right
         current.left = current.right = nil
         switch_parent.left = nil
-        # switch_node.left = nil if switch_node.left != nil
-        # switch_node.right = nil if switch_node.right != nil
         switch_node.left = left
         switch_node.right = right
         @root = switch_node
         insert(child_left.root) if child_left != nil
         insert(child_right.root) if child_right != nil
-        #how to switch if it has children...?
-        # Store roots left and right values into "l"eft" and "right"
-        #Disconnect root. 
-        #Disconnect switch node
-        #connect switch node to previous roots left and right.
-        # Use insert to re-insert any of switch_nodes children.
         current = nil
       end
     end
@@ -210,14 +206,15 @@ require_relative 'node.rb'
     end
 
     def inorder
+      binding.pry
       return enum_for(:inorder) unless block_given?
-      
       if @root.nil?
         return nil
       end
-      @root.left.inorder { |root| print "#{root}, " } if @root.left != nil
+      
+      @root.left.inorder{ |val| @@new_tree_array.push(val) } if @root.left != nil
       yield @root.root
-      @root.right.inorder { |root| print "#{root}, " } if @root.right != nil
+      @root.right.inorder{ |val| @@new_tree_array.push(val) } if @root.right != nil
       print "fin"
     end
 
@@ -227,8 +224,10 @@ require_relative 'node.rb'
       if @root.nil?
         return nil
       end
-      value_left = @root.left.postorder { |root| print "#{root}, " } if @root.left != nil
-      value_right = @root.right.postorder { |root| print "#{root}, " } if @root.right != nil
+      value_left = @root.left.postorder { |val| @@new_tree_array.push(val) } if @root.left != nil
+      value_right = @root.right.postorder { |val| @@new_tree_array.push(val) } if @root.right != nil
+      # binding.pry
+      @new_tree_array = @@new_tree_array
       yield @root.root
       print "fin"
     end
@@ -279,10 +278,9 @@ require_relative 'node.rb'
         puts "#{value} is not in the tree"
         return nil
       end
-      binding.pry
+      # binding.pry
       node = find_node(value)
       height = count_nodes_down(node) - 1
-      puts "Longest height found is #{height}"
       height
     end
 
@@ -307,7 +305,7 @@ require_relative 'node.rb'
     end
 
     def balanced?
-      binding.pry
+      # binding.pry
       current = @root
       balanced_left = current.left.balanced?
       balanced_right = current.right.balanced?
@@ -321,6 +319,14 @@ require_relative 'node.rb'
       else
         return true
       end
+    end
+
+    def rebalance(array)
+      binding.pry
+      new_array = array.uniq.sort
+      new_tree = Tree.new(new_array)
+      @root = new_tree.build_tree(new_tree.array)
+      # binding.pry
     end
   end
 
@@ -340,14 +346,36 @@ test.pretty_print
 display_root = -> (root) { puts root }
 test.level_order(&display_root)
 test.level_order
-puts "test preorder:"
-test.preorder(&display_root)
-puts "Next test inorder"
-test.inorder(&display_root)
-puts "Next test postorder:"
-test.postorder(&display_root)
+# puts "test preorder:"
+# test.preorder(&display_root)
+# puts "Next test inorder"
+# test.inorder(&display_root)
+# puts "Next test postorder:"
+# test.postorder(&display_root)
 puts "next test height"
 # test.height(67)
 test.depth(67)
 test.depth(1)
 puts test.balanced?
+# binding.pry
+test.postorder{ |val| test.new_tree_array.push(val) }
+puts "new_tree_array is #{test.new_tree_array}"
+new_tree = test.rebalance(test.new_tree_array)
+test.pretty_print
+
+tree_two = Tree.new(Array.new(15) { rand(1..100) })
+tree_two.root = tree_two.build_tree(tree_two.array)
+tree_two.pretty_print
+puts "Is the tree balanced?"
+puts tree_two.balanced?
+tree_two.insert(160)
+tree_two.insert(800)
+tree_two.insert(555)
+tree_two.insert(105)
+tree_two.pretty_print
+puts "Is the tree balanced?"
+puts tree_two.balanced?
+puts "Let's rebalance it!!!"
+tree_two.postorder{ |val| tree_two.new_tree_array.push(val) }
+tree_two.rebalance(tree_two.new_tree_array)
+tree_two.pretty_print

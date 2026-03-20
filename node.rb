@@ -2,13 +2,15 @@ require 'pry-byebug'
 class Node
 
   attr_accessor :root, :left, :right
-
+  @@new_tree_array = []
   def initialize(root, arr)
     @mid = arr.length / 2
     @root = root
     @left = arr[0...@mid]
     @right = arr[@mid + 1..-1]
     @parent
+    
+    @to_array = -> (val) { @new_tree_array << val }
   end
 
   def root
@@ -45,18 +47,19 @@ class Node
     end
     yield @root
     @left.preorder { |root| print "#{root}, " } if @left != nil
-    @right.preorder { |root| puts root } if @right != nil
+    @right.preorder { |root| print "#{root}, " } if @right != nil
   end
 
   def inorder
+    binding.pry
     return enum_for(:inorder) unless block_given?  
     if @root.nil?
       return nil
     end
     # binding.pry
-    @left.inorder { |root| print "#{root}, " } if @left != nil
+    @left.inorder{ |val| @@new_tree_array.push(val) } if @left != nil
     yield @root
-    @right.inorder { |root| print "#{root}, " } if @right != nil
+    @right.inorder{ |val| @@new_tree_array.push(val) } if @right != nil
   end
 
   def postorder
@@ -65,13 +68,13 @@ class Node
       return nil
     end
     # binding.pry
-    @left.inorder { |root| print "#{root}, " } if @left != nil
-    @right.inorder { |root| print "#{root}, " } if @right != nil
+    @left.postorder { |val| @@new_tree_array.push(val) } if @left != nil
+    @right.postorder { |val| @@new_tree_array.push(val) } if @right != nil
     yield @root
   end
 
   def balanced?
-    binding.pry
+    # binding.pry
     balanced_left = @left.balanced? if @left != nil
     balanced_right = @right.balanced? if @right != nil
     return false if balanced_left == false || balanced_right == false
@@ -140,7 +143,6 @@ class Node
     else 
       height = 1
     end
-    puts "Longest height found is #{height}"
     height
   end
 
