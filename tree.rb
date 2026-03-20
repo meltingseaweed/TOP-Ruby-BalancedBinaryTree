@@ -94,6 +94,7 @@ require_relative 'node.rb'
 
     def delete(value)
       puts "#{value} not found in array" if include?(value).nil?
+      # current = find_node(value)
       current = @root
       found = false
       level = 0
@@ -114,10 +115,12 @@ require_relative 'node.rb'
         end
       end
 
+
       #for no children
       if current.left.nil? && current.right.nil?
-        current = nil
-        return
+        @parent.left = current.left if current.left != nil
+        @parent.left = current.right if current.right != nil
+
       #For one child
       elsif current.left.nil? || current.right.nil?
         if @parent.root > value
@@ -130,7 +133,6 @@ require_relative 'node.rb'
           @parent.right = current.right if current.right != nil
         end
         current = nil
-        return
       else
       # For 2 children
       switch_node = current.right
@@ -231,6 +233,95 @@ require_relative 'node.rb'
       print "fin"
     end
 
+    def find_node(value)
+      current = @root
+      found = false
+      level = 0
+      @parent = @root
+
+      until found == true
+          # binding.pry
+        if value == current.root
+          found = true
+        elsif value < current.root
+          # binding.pry
+          @parent = current
+          current = current.left
+        elsif value > current.root
+          # binding.pry
+          @parent = current
+          current = current.right
+        end
+      end
+      current
+    end
+
+    def count_nodes_down(current_node)
+      if current_node.nil?
+        return 0
+      end
+      height_left = 0
+      height_right = 0
+      # binding.pry
+      height_left = count_nodes_down(current_node.left) if current_node.left != nil
+      height_left += 1 
+      height_right = count_nodes_down(current_node.right) if current_node.right != nil
+      height_right += 1
+      if height_left > height_right
+        return height_left
+      else
+        return height_right
+      end
+    end
+
+    def height(value)
+      if include?(value) == false
+        puts "#{value} is not in the tree"
+        return nil
+      end
+      binding.pry
+      node = find_node(value)
+      height = count_nodes_down(node) - 1
+      puts "Longest height found is #{height}"
+      height
+    end
+
+    def depth(value)
+      if include?(value) == false
+        puts "#{value} is not in the tree"
+        return nil
+      end
+      depth = 0
+      current = @root
+      until current.root == value
+        if value < current.root
+          current = current.left
+          depth += 1
+        elsif value > current.root
+          current = current.right
+          depth += 1
+        end
+      end
+      puts "Depth value found is #{depth}"
+      depth
+    end
+
+    def balanced?
+      binding.pry
+      current = @root
+      balanced_left = current.left.balanced?
+      balanced_right = current.right.balanced?
+      return false if balanced_left == false || balanced_right == false
+      height_left_side = height(current.left.root)
+      height_right_side = height(current.right.root)
+      height_difference = height_right_side - height_left_side
+
+      if height_difference < -1 || height_difference > 1
+        return false
+      else
+        return true
+      end
+    end
   end
 
 test = Tree.new([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324])
@@ -241,7 +332,8 @@ puts test.include?(6344)
 test.insert(20)
 test.pretty_print
 # test.insert(20)
-# test.delete(4)
+# puts "test delete 1"
+# test.delete(1)
 test.pretty_print 
 # test.delete(8)
 # test.pretty_print
@@ -254,3 +346,8 @@ puts "Next test inorder"
 test.inorder(&display_root)
 puts "Next test postorder:"
 test.postorder(&display_root)
+puts "next test height"
+# test.height(67)
+test.depth(67)
+test.depth(1)
+puts test.balanced?
