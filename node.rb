@@ -9,8 +9,7 @@ class Node
     @left = arr[0...@mid]
     @right = arr[@mid + 1..-1]
     @parent
-    
-    @to_array = -> (val) { @new_tree_array << val }
+    @lambda_print = -> (value) { puts "|#{value}|"}
   end
 
   def root
@@ -45,9 +44,9 @@ class Node
     if @root.nil?
       return nil
     end
-    yield @root
-    @left.preorder { |root| print "#{root}, " } if @left != nil
-    @right.preorder { |root| print "#{root}, " } if @right != nil
+    @lambda_print.call(@root)
+    @left.preorder(&:@lambda_print) if @left != nil
+    @right.preorder(&:@lambda_print) if @right != nil
   end
 
   def inorder

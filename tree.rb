@@ -13,6 +13,7 @@ require_relative 'node.rb'
       @right = @array[@mid + 1..-1]
       @parent = nil
       @new_tree_array = []
+      @lambda_print = -> (value) { puts "|#{value}|"}
     end
 
     def new_tree_array
@@ -192,27 +193,25 @@ require_relative 'node.rb'
       end
     end
 
-    def preorder
+    def preorder(&block)
       return enum_for(:preorder) unless block_given?
       # binding.pry    
       if @root.nil?
         return nil
       end
-
-      yield @root.root
-      @root.left.preorder { |root| print "#{root}, " } if @root.left != nil
-      @root.right.preorder { |root| print "#{root}, " } if @root.right != nil
+      @lambda_print.call(@root.root)
+      @root.left.preorder(&block) if @root.left != nil
+      @root.right.preorder(&block) if @root.right != nil
       print "fin"
     end
 
     def inorder
-      binding.pry
       return enum_for(:inorder) unless block_given?
       if @root.nil?
         return nil
       end
       
-      @root.left.inorder{ |val| @@new_tree_array.push(val) } if @root.left != nil
+      @root.left.inorder() if @root.left != nil
       yield @root.root
       @root.right.inorder{ |val| @@new_tree_array.push(val) } if @root.right != nil
       print "fin"
@@ -337,45 +336,47 @@ puts test.include?(23)
 puts test.include?(6344)
 test.insert(20)
 test.pretty_print
+lambda_print = -> (value) { print " #{value} "}
+test.preorder(&lambda_print)
 # test.insert(20)
 # puts "test delete 1"
 # test.delete(1)
-test.pretty_print 
-# test.delete(8)
+# test.pretty_print 
+# # test.delete(8)
+# # test.pretty_print
+# display_root = -> (root) { puts root }
+# test.level_order(&display_root)
+# test.level_order
+# # puts "test preorder:"
+# # test.preorder(&display_root)
+# # puts "Next test inorder"
+# # test.inorder(&display_root)
+# # puts "Next test postorder:"
+# # test.postorder(&display_root)
+# puts "next test height"
+# # test.height(67)
+# test.depth(67)
+# test.depth(1)
+# puts test.balanced?
+# # binding.pry
+# test.postorder{ |val| test.new_tree_array.push(val) }
+# puts "new_tree_array is #{test.new_tree_array}"
+# new_tree = test.rebalance(test.new_tree_array)
 # test.pretty_print
-display_root = -> (root) { puts root }
-test.level_order(&display_root)
-test.level_order
-# puts "test preorder:"
-# test.preorder(&display_root)
-# puts "Next test inorder"
-# test.inorder(&display_root)
-# puts "Next test postorder:"
-# test.postorder(&display_root)
-puts "next test height"
-# test.height(67)
-test.depth(67)
-test.depth(1)
-puts test.balanced?
-# binding.pry
-test.postorder{ |val| test.new_tree_array.push(val) }
-puts "new_tree_array is #{test.new_tree_array}"
-new_tree = test.rebalance(test.new_tree_array)
-test.pretty_print
 
-tree_two = Tree.new(Array.new(15) { rand(1..100) })
-tree_two.root = tree_two.build_tree(tree_two.array)
-tree_two.pretty_print
-puts "Is the tree balanced?"
-puts tree_two.balanced?
-tree_two.insert(160)
-tree_two.insert(800)
-tree_two.insert(555)
-tree_two.insert(105)
-tree_two.pretty_print
-puts "Is the tree balanced?"
-puts tree_two.balanced?
-puts "Let's rebalance it!!!"
-tree_two.postorder{ |val| tree_two.new_tree_array.push(val) }
-tree_two.rebalance(tree_two.new_tree_array)
-tree_two.pretty_print
+# tree_two = Tree.new(Array.new(15) { rand(1..100) })
+# tree_two.root = tree_two.build_tree(tree_two.array)
+# tree_two.pretty_print
+# puts "Is the tree balanced?"
+# puts tree_two.balanced?
+# tree_two.insert(160)
+# tree_two.insert(800)
+# tree_two.insert(555)
+# tree_two.insert(105)
+# tree_two.pretty_print
+# puts "Is the tree balanced?"
+# puts tree_two.balanced?
+# puts "Let's rebalance it!!!"
+# tree_two.postorder{ |val| tree_two.new_tree_array.push(val) }
+# tree_two.rebalance(tree_two.new_tree_array)
+# tree_two.pretty_print
