@@ -10,7 +10,6 @@ class Node
     @left = arr[0...@mid]
     @right = arr[@mid + 1..-1]
     @parent
-    @lambda_print = -> (value) { puts "|#{value}|"}
   end
 
   def root
