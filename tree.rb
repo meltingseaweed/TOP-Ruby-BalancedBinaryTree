@@ -199,34 +199,33 @@ require_relative 'node.rb'
       if @root.nil?
         return nil
       end
-      @lambda_print.call(@root.root)
+      yield @root.root
       @root.left.preorder(&block) if @root.left != nil
       @root.right.preorder(&block) if @root.right != nil
       print "fin"
     end
 
-    def inorder
+    def inorder(&block)
       return enum_for(:inorder) unless block_given?
       if @root.nil?
         return nil
       end
       
-      @root.left.inorder() if @root.left != nil
+      @root.left.inorder(&block) if @root.left != nil
       yield @root.root
-      @root.right.inorder{ |val| @@new_tree_array.push(val) } if @root.right != nil
+      @root.right.inorder(&block) if @root.right != nil
       print "fin"
     end
 
-    def postorder
+    def postorder(&block)
       return enum_for(:postorder) unless block_given?
       
       if @root.nil?
         return nil
       end
-      value_left = @root.left.postorder { |val| @@new_tree_array.push(val) } if @root.left != nil
-      value_right = @root.right.postorder { |val| @@new_tree_array.push(val) } if @root.right != nil
+      @root.left.postorder(&block) if @root.left != nil
+      @root.right.postorder(&block) if @root.right != nil
       # binding.pry
-      @new_tree_array = @@new_tree_array
       yield @root.root
       print "fin"
     end
@@ -334,10 +333,17 @@ test.root = test.build_tree(test.array)
 test.pretty_print
 puts test.include?(23)
 puts test.include?(6344)
-test.insert(20)
-test.pretty_print
-lambda_print = -> (value) { print " #{value} "}
-test.preorder(&lambda_print)
+# test.insert(20)
+# test.pretty_print
+# lambda_print = -> (value) { print " #{value} "}
+puts "test preorder:"
+test.preorder { |val| print " #{val} "}
+puts ""
+puts "test inorder:"
+test.inorder { |val| print " #{val} "}
+puts ""
+puts "test postorder:"
+test.postorder { |val| print " #{val} "}
 # test.insert(20)
 # puts "test delete 1"
 # test.delete(1)
@@ -357,7 +363,7 @@ test.preorder(&lambda_print)
 # # test.height(67)
 # test.depth(67)
 # test.depth(1)
-# puts test.balanced?
+puts test.balanced?
 # # binding.pry
 # test.postorder{ |val| test.new_tree_array.push(val) }
 # puts "new_tree_array is #{test.new_tree_array}"

@@ -2,6 +2,7 @@ require 'pry-byebug'
 class Node
 
   attr_accessor :root, :left, :right
+
   @@new_tree_array = []
   def initialize(root, arr)
     @mid = arr.length / 2
@@ -38,37 +39,37 @@ class Node
     included
   end
 
-  def preorder
+  def preorder(&block)
     return enum_for(:preorder) unless block_given?
     # binding.pry
     if @root.nil?
       return nil
     end
-    @lambda_print.call(@root)
-    @left.preorder(&:@lambda_print) if @left != nil
-    @right.preorder(&:@lambda_print) if @right != nil
+    yield @root
+    @left.preorder(&block) if @left != nil
+    @right.preorder(&block) if @right != nil
   end
 
-  def inorder
-    binding.pry
+  def inorder(&block)
+    # binding.pry
     return enum_for(:inorder) unless block_given?  
     if @root.nil?
       return nil
     end
     # binding.pry
-    @left.inorder{ |val| @@new_tree_array.push(val) } if @left != nil
+    @left.inorder(&block) if @left != nil
     yield @root
-    @right.inorder{ |val| @@new_tree_array.push(val) } if @right != nil
+    @right.inorder(&block) if @right != nil
   end
 
-  def postorder
+  def postorder(&block)
     return enum_for(:postorder) unless block_given?  
     if @root.nil?
       return nil
     end
     # binding.pry
-    @left.postorder { |val| @@new_tree_array.push(val) } if @left != nil
-    @right.postorder { |val| @@new_tree_array.push(val) } if @right != nil
+    @left.postorder(&block) if @left != nil
+    @right.postorder(&block) if @right != nil
     yield @root
   end
 
